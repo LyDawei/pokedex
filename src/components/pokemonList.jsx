@@ -1,33 +1,38 @@
 import { graphql, useStaticQuery } from 'gatsby';
 import React from 'react';
-import { List } from 'semantic-ui-react';
-import listStyle from './pokemonList.module.scss';
+import { Dropdown } from 'semantic-ui-react';
+import pokemonListStyle from './pokemonList.module.scss';
 
 const PokemonList = (props) => {
-  const pokemon = useStaticQuery(graphql`
+  const { onSelect } = props;
+  const data = useStaticQuery(graphql`
     {
       allPokemon {
         nodes {
+          sprite
           name
           url
         }
       }
     }
-  `).allPokemon.nodes;
-
+  `);
+  const pokemon = data?.allPokemon.nodes;
   return (
     <div>
-      <List selection>
-        {pokemon.map((p, i) => (
-          <List.Item>
-            <List.Content>
-              <List.Header>
-                #{i + 1} {p.name}
-              </List.Header>
-            </List.Content>
-          </List.Item>
-        ))}
-      </List>
+      <Dropdown
+        clearable
+        placeholder="Select a pokemon"
+        search
+        selection
+        onChange={(e, data) => onSelect(data.value)}
+        options={pokemon.map((p) => ({
+          className: pokemonListStyle.pokemonOption,
+          key: `pokemon-${p.name}`,
+          text: p.name,
+          value: p.url,
+          image: { avatar: true, src: p.sprite },
+        }))}
+      />
     </div>
   );
 };
